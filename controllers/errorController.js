@@ -4,8 +4,10 @@ module.exports = (err, req, res, next) => {
   err.statusCode ??= 500;
   err.status ??= "error";
 
-  if (process.env.NODE_ENV === "development") sendErrDev(err, req, res);
-  if (process.env.NODE_ENV === "production") {
+  const env = process.env.NODE_ENV;
+
+  if (env === "development") sendErrDev(err, req, res);
+  if (env === "production") {
     if (err.code === 11000) err = handleDuplicateFieldValue(err);
     if (err._message === "User validation failed")
       err = handleValidationFail(err);

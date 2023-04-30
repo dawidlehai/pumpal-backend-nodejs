@@ -16,7 +16,11 @@ app.use(`${apiBase}/users`, userRouter);
 
 app.all("*", (req, res, next) => {
   next(
-    new AppError(`Cannot find ${req.originalUrl} on this server.`, 404, "error")
+    new AppError(
+      `Cannot find '${req.originalUrl}' on this server.`,
+      404,
+      "error"
+    )
   );
 });
 
