@@ -16,6 +16,13 @@ mongoose
     console.log("Error connecting to database:", error);
   });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server running on port ${port}...`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error(err.name, err.message);
+  console.error("Unhandled rejection! Shutting down...");
+
+  server.close(() => process.exit(1));
 });

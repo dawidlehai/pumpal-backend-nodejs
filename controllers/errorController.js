@@ -34,7 +34,7 @@ function sendErrProd(err, req, res) {
       data: err.data,
     });
   else {
-    console.log("Nonoperational internal server error:", err);
+    console.error("Nonoperational internal server error:", err);
 
     res.status(500).json({
       status: "error",
