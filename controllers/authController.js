@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const catchAsync = require("./../utils/catchAsync");
 const User = require("./../models/userModel");
 
-exports.signup = async (req, res, next) => {
+exports.signup = catchAsync(async (req, res, next) => {
   const { body } = req;
 
   const newUser = await User.create({
@@ -13,4 +14,4 @@ exports.signup = async (req, res, next) => {
     status: "success",
     data: { user: newUser },
   });
-};
+});
