@@ -7,6 +7,9 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") sendErrDev(err, req, res);
   if (process.env.NODE_ENV === "production") {
     if (err.code === 11000) err = handleDuplicateFieldValue(err);
+    if (err._message === "User validation failed")
+      err = handleValidationFail(err);
+
     sendErrProd(err, req, res);
   }
 };
@@ -39,11 +42,23 @@ function sendErrProd(err, req, res) {
 }
 
 function handleDuplicateFieldValue(err) {
-  const [[key, value]] = Object.entries(err.keyValue);
-  let message = `The value '${value}' for the '${key}' field already exists. It should be unique. Please provide another value.`;
+  const [[field, value]] = Object.entries(err.keyValue);
+  let message = `The value '${value}' for the '${field}' field already exists. It should be unique. Please provide another value.`;
 
-  if (key === "username")
+  if (field === "username")
     message = `The username '${value}' is already taken. Please choose a different username that is not already in use by another user.`;
 
-  return new AppError(message, 400, "fail", { [key]: message });
+  return new AppError("Duplicate field value error.", 400, "fail", {
+    [field]: message,
+  });
+}
+
+function handleValidationFail(err) {
+  const data = {};
+
+  Object.entries(err.errors).forEach(
+    ([field, { message }]) => (data[field] = message)
+  );
+
+  return new AppError("Validation error.", 400, "fail", data);
 }
