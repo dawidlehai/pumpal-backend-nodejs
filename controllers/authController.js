@@ -1,7 +1,34 @@
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 const catchAsync = require("./../utils/catchAsync");
 const User = require("./../models/userModel");
 const AppError = require("./../utils/appError");
+
+exports.protect = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  let token;
+
+  if (authorization?.startsWith("Bearer")) token = authorization.split(" ")[1];
+
+  if (!token) {
+    const message = "You are not logged in. Please log in to get access.";
+    return next(new AppError(message, 401, "fail", { message }));
+  }
+
+  const decodedUserData = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET
+  );
+
+  const currentUser = await User.findById(decodedUserData.id);
+  if (!currentUser) {
+    const message = "There is no such user in the database. Access denied.";
+    return next(new AppError(message, 401, "fail", { username: message }));
+  }
+
+  req.user = currentUser;
+  next();
+});
 
 exports.signup = catchAsync(async (req, res) => {
   const { username, password } = req.body;
