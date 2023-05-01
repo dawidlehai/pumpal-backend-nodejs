@@ -4,6 +4,12 @@ const app = require("./app");
 
 dotenv.config({ path: "./config.env" });
 
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception! Shutting down...");
+  console.error(err.name, err.message);
+  process.exit(1);
+});
+
 const port = process.env.PORT;
 const db = process.env.DATABASE;
 
@@ -21,8 +27,8 @@ const server = app.listen(port, () => {
 });
 
 process.on("unhandledRejection", (err) => {
-  console.error(err.name, err.message);
   console.error("Unhandled rejection! Shutting down...");
+  console.error(err.name, err.message);
 
   server.close(() => process.exit(1));
 });
