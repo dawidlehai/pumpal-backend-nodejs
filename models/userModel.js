@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-const workoutSchema = require("./workoutModel.js");
-
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
