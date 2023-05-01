@@ -9,8 +9,9 @@ module.exports = (err, req, res, next) => {
   if (env === "development") sendErrDev(err, req, res);
   if (env === "production") {
     if (err.code === 11000) err = handleDuplicateFieldValue(err);
-    if (err._message === "User validation failed")
-      err = handleValidationFail(err);
+    if (err.name === "ValidationError") err = handleValidationFail(err);
+    if (err.name === "JsonWebTokenError") err = handleJwtError();
+    if (err.name === "TokenExpiredError") err = handleJwtExpiredError();
 
     sendErrProd(err, req, res);
   }
@@ -63,4 +64,20 @@ function handleValidationFail(err) {
   );
 
   return new AppError("Validation error.", 400, "fail", data);
+}
+
+function handleJwtError() {
+  return new AppError(
+    "The token is invalid. Please log in again.",
+    401,
+    "error"
+  );
+}
+
+function handleJwtExpiredError() {
+  return new AppError(
+    "The token has expired. Please log in again.",
+    401,
+    "error"
+  );
 }
