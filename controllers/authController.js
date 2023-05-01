@@ -1,13 +1,48 @@
 const jwt = require("jsonwebtoken");
 const catchAsync = require("./../utils/catchAsync");
 const User = require("./../models/userModel");
+const AppError = require("./../utils/appError");
 
-exports.signup = catchAsync(async (req, res, next) => {
+exports.signup = catchAsync(async (req, res) => {
   const { username, password } = req.body;
 
   const newUser = await User.create({ username, password });
 
   createSendToken(newUser, 201, req, res);
+});
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    const data = {
+      username: username ? undefined : "The username field cannot be empty.",
+      password: password ? undefined : "The password field cannot be empty.",
+    };
+
+    return next(
+      new AppError("Please provide username and password.", 400, "fail", data)
+    );
+  }
+
+  const user = await User.findOne({ username }).select("+password");
+
+  if (!user)
+    return next(
+      new AppError("Incorrect username.", 401, "fail", {
+        username:
+          "The username is incorrect. There is no such user in the database.",
+      })
+    );
+
+  if (!(await user.isPasswordCorrect(password, user.password)))
+    return next(
+      new AppError("Incorrect password.", 401, "fail", {
+        password: "The password is incorrect. Please try again.",
+      })
+    );
+
+  createSendToken(user, 200, req, res);
 });
 
 function createSendToken(user, statusCode, req, res) {
