@@ -48,7 +48,7 @@ function handleDuplicateFieldValue(err) {
   let message = `The value '${value}' for the '${field}' field already exists. It should be unique. Please provide another value.`;
 
   if (field === "username")
-    message = `The username '${value}' is already taken. Please choose a different username that is not already in use by another user.`;
+    message = `The username '${value}' is already taken. Please choose a different username.`;
 
   return new AppError("Duplicate field value error.", 400, "fail", {
     [field]: message,
