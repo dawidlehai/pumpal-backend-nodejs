@@ -5,6 +5,9 @@ const authController = require("./../controllers/authController");
 
 const router = express.Router();
 
-router.route("/").get(authController.protect, workoutController.getAll);
+router
+  .route("/")
+  .get(authController.protect, workoutController.getAllWorkouts)
+  .post(authController.protect, workoutController.createWorkout);
 
 module.exports = router;

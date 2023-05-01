@@ -7,6 +7,7 @@ const setSchema = new mongoose.Schema({
     min: 0,
   },
   weight: { type: Number, min: 0 },
+  _id: false,
 });
 
 const exerciseSchema = new mongoose.Schema({
@@ -16,6 +17,7 @@ const exerciseSchema = new mongoose.Schema({
   },
   isBodyweight: { type: Boolean, default: false },
   sets: [setSchema],
+  _id: false,
 });
 
 const workoutSchema = new mongoose.Schema({
