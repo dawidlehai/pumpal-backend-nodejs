@@ -1,18 +1,23 @@
+const mongoose = require("mongoose");
 const catchAsync = require("./../utils/catchAsync");
 const Workout = require("./../models/workoutModel");
+const AppError = require("../utils/appError");
 
 exports.createWorkout = catchAsync(async (req, res, next) => {
-  const newWorkout = await Workout.create({
+  const {
+    _id: id,
+    user,
+    date,
+    exercises,
+  } = await Workout.create({
     user: req.user.id,
     ...req.body,
   });
 
-  console.log(req.body);
-
   res.status(201).json({
     status: "success",
     data: {
-      workout: newWorkout, // TODO: disable __v property
+      workout: { id, user, date, exercises },
     },
   });
 });
@@ -26,6 +31,37 @@ exports.getAllWorkouts = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       workouts,
+    },
+  });
+});
+
+exports.updateWorkout = catchAsync(async (req, res, next) => {
+  const { id: workoutId } = req.params;
+
+  const workoutToUpdate = await Workout.findById(workoutId);
+
+  const userObjectId = new mongoose.Types.ObjectId(req.params.user);
+
+  if (!workoutToUpdate) {
+    const message = `Could not find a workout with the id of ${workoutId}.`;
+    return next(
+      new AppError(message, 401, "fail", {
+        workout: message,
+      })
+    );
+  }
+
+  const updatedWorkout = await Workout.findByIdAndUpdate(workoutId, req.body, {
+    returnDocument: "after",
+    runValidators: true,
+  });
+
+  const { _id: id, user, date, exercises } = updatedWorkout;
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      workout: { id, user, date, exercises },
     },
   });
 });

@@ -10,4 +10,8 @@ router
   .get(authController.protect, workoutController.getAllWorkouts)
   .post(authController.protect, workoutController.createWorkout);
 
+router
+  .route("/:id")
+  .patch(authController.protect, workoutController.updateWorkout);
+
 module.exports = router;
