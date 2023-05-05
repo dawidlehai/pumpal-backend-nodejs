@@ -40,12 +40,19 @@ exports.updateWorkout = catchAsync(async (req, res, next) => {
 
   const workoutToUpdate = await Workout.findById(workoutId);
 
-  const userObjectId = new mongoose.Types.ObjectId(req.params.user);
-
   if (!workoutToUpdate) {
     const message = `Could not find a workout with the id of ${workoutId}.`;
     return next(
       new AppError(message, 401, "fail", {
+        workout: message,
+      })
+    );
+  }
+
+  if (req.user.id !== workoutToUpdate.user.toString()) {
+    const message = `You are not permitted to edit a workout with the id of ${workoutId}.`;
+    return next(
+      new AppError(message, 403, "fail", {
         workout: message,
       })
     );
